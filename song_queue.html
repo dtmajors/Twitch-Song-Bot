@@ -1,0 +1,364 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Song Request Queue</title>
+    <style>
+        
+        :root {
+            --font-family: 'Segoe UI', Arial, sans-serif;
+            --font-size: 16px;
+            --header-bg: #4b4848;
+            --header-text-color: #ffffff;
+            --status-on-bg: #37ff00;
+            --status-off-bg: #ff0000;
+            --config-button-bg: #000000;
+            --queue-row-bg: #000000;
+            --pending-bg: #000000;
+            --accepted-bg: #04ff00;
+            --denied-bg: #ff0000;
+            --text-color: #ffffff;
+            --queue-num-color: #ffffff;
+            --requester-color: #ffffff;
+            --time-ago-color: #ffffff;
+            --accept-btn-bg: #02971b;
+            --deny-btn-bg: #a30000;
+            --remove-btn-bg: #7a890b;
+        }
+     /* Inject dynamic CSS variables here */
+
+        body { 
+            font-family: var(--font-family); 
+            font-size: var(--font-size); /* Use font size */
+            margin: 0; 
+            background: transparent; /* Keep background transparent for OBS overlay */
+            color: var(--text-color); 
+            width: 450px; /* Increased width to accommodate new layout */
+            overflow: hidden; /* Prevent scrollbars in OBS */
+        }
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            background: var(--header-bg); 
+            color: var(--header-text-color);
+            font-size: 20px;
+            font-weight: bold;
+            border-bottom: 2px solid #00bfff; /* Thicker, distinct blue line */
+        }
+        .status-button {
+            padding: 8px 15px; 
+            border-radius: 20px; 
+            font-size: 16px; 
+            font-weight: bold;
+            color: white;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s ease; 
+            box-shadow: 
+                inset 0 2px 4px rgba(0,0,0,0.4), 
+                inset 0 -2px 4px rgba(255,255,255,0.2), 
+                0 2px 5px rgba(0,0,0,0.5); 
+            border: 1px solid rgba(255,255,255,0.1); 
+            text-shadow: 0 1px 2px rgba(0,0,0,0.6); 
+            margin-left: 10px; 
+        }
+        .status-on {
+            background: var(--status-on-bg); 
+        }
+        .status-off {
+            background: var(--status-off-bg); 
+        }
+        #config-button-container {
+            position: fixed; 
+            top: 5px; 
+            right: 5px; 
+            background: rgba(0, 0, 0, 0.5); 
+            padding: 3px;
+            border-radius: 5px;
+            z-index: 1000; 
+        }
+        .configure-button {
+            padding: 3px 6px; 
+            border-radius: 10px; 
+            font-size: 10px; 
+            font-weight: bold;
+            color: white;
+            background: var(--config-button-bg); 
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 
+                inset 0 1px 2px rgba(0,0,0,0.4), 
+                inset 0 -1px 2px rgba(255,255,255,0.2), 
+                0 1px 3px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.1);
+            text-shadow: 0 0.5px 1px rgba(0,0,0,0.6);
+            text-decoration: none; 
+            display: block; 
+        }
+        .configure-button:hover {
+            filter: brightness(1.1); /* Slightly brighten on hover for general gradient */
+        }
+        #song-queue-container { 
+            display: flex; 
+            flex-direction: column;
+            gap: 8px; 
+            margin-top: 10px; 
+        }
+        .song-row { 
+            background: var(--queue-row-bg); 
+            display: flex; 
+            border-radius: 5px; 
+            overflow: hidden; 
+            position: relative; 
+            padding: 8px 10px; 
+            align-items: center; 
+        }
+        /* Status colors for rows */
+        .pending { background: var(--pending-bg); } 
+        .accepted { background: var(--accepted-bg); } 
+        .denied { background: var(--denied-bg); } 
+
+        .queue-number {
+            font-size: 12px;
+            font-weight: bold;
+            color: var(--queue-num-color);
+            flex-shrink: 0; 
+            margin-right: 10px; 
+        }
+
+        .song-info-wrapper {
+            flex-grow: 1; 
+            display: flex;
+            flex-direction: column; 
+        }
+
+        .song-title-artist-line {
+            display: flex;
+            justify-content: space-between; 
+            align-items: baseline; 
+            font-size: 16px;
+            font-weight: bold;
+            line-height: 1.3;
+        }
+        .song-title-artist-line span {
+            flex-shrink: 1; 
+        }
+        .requester {
+            font-size: 13px;
+            color: var(--requester-color); 
+            margin-top: 2px;
+            font-style: italic;
+        }
+        .time-ago {
+            font-size: 11px;
+            color: var(--time-ago-color);
+            white-space: nowrap; 
+            margin-left: 15px; 
+            flex-shrink: 0; 
+        }
+        .action-buttons-container {
+            display: flex;
+            flex-direction: column; 
+            gap: 2px; 
+            margin-left: 15px; 
+            flex-shrink: 0; 
+        }
+        .action-btn { 
+            padding: 3px 6px; 
+            font-size: 12px; 
+            cursor: pointer; 
+            border: none; 
+            border-radius: 4px; 
+            transition: background 0.2s ease; 
+            color: white; 
+            line-height: 1; 
+        }
+        .accept-btn { background: var(--accept-btn-bg); } 
+        .accept-btn:hover { filter: brightness(0.9); }
+        .deny-btn { background: var(--deny-btn-bg); } 
+        .deny-btn:hover { filter: brightness(0.9); }
+        .remove-btn { background: var(--remove-btn-bg); } 
+        .remove-btn:hover { filter: brightness(0.9); }
+    </style>
+</head>
+<body>
+    <div class="header-container">
+        <div>SONG REQUESTS</div>
+        <div id="statusToggle" class="status-button"></div>
+    </div>
+    <div id="song-queue-container">
+        </div>
+
+    <div id="config-button-container">
+        <a href="/config.html" class="configure-button">Config</a>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const songQueueContainer = document.getElementById('song-queue-container');
+            const statusToggleButton = document.getElementById('statusToggle');
+            let currentStatus = true; // Initial status, will be updated by server
+
+            // Function to update the status button's display
+            function updateStatusButtonDisplay(isEnabled) {
+                currentStatus = isEnabled;
+                if (isEnabled) {
+                    statusToggleButton.classList.remove('status-off');
+                    statusToggleButton.classList.add('status-on');
+                    statusToggleButton.innerHTML = 'ON &#9835;';
+                } else {
+                    statusToggleButton.classList.remove('status-on');
+                    statusToggleButton.classList.add('status-off');
+                    statusToggleButton.innerHTML = 'OFF &#9835;';
+                }
+            }
+
+            // Function to fetch and render the queue and status
+            async function updateQueueDisplay() {
+                try {
+                    const queueResponse = await fetch('/get_queue'); // Updated to /get_queue
+                    if (!queueResponse.ok) {
+                        throw new Error(`HTTP error! status: ${queueResponse.status}`);
+                    }
+                    const data = await queueResponse.json(); // Read entire response as JSON
+                    const queue = data.queue;
+                    const requestsEnabled = data.requests_enabled; // Get enabled status from combined response
+                    const theme = data.theme; // Get theme from combined response
+
+                    // Apply theme directly (no need to fetch separately)
+                    document.documentElement.style.setProperty('--font-family', theme.font_family);
+                    document.documentElement.style.setProperty('--font-size', theme.font_size + 'px');
+                    document.documentElement.style.setProperty('--header-bg', theme.header_bg);
+                    document.documentElement.style.setProperty('--header-text-color', theme.header_text_color);
+                    document.documentElement.style.setProperty('--status-on-bg', theme.status_on_bg);
+                    document.documentElement.style.setProperty('--status-off-bg', theme.status_off_bg);
+                    document.documentElement.style.setProperty('--config-button-bg', theme.config_button_bg);
+                    document.documentElement.style.setProperty('--queue-row-bg', theme.queue_row_bg);
+                    document.documentElement.style.setProperty('--pending-bg', theme.pending_bg);
+                    document.documentElement.style.setProperty('--accepted-bg', theme.accepted_bg);
+                    document.documentElement.style.setProperty('--denied-bg', theme.denied_bg);
+                    document.documentElement.style.setProperty('--text-color', theme.text_color);
+                    document.documentElement.style.setProperty('--queue-num-color', theme.queue_num_color);
+                    document.documentElement.style.setProperty('--requester-color', theme.requester_color);
+                    document.documentElement.style.setProperty('--time-ago-color', theme.time_ago_color);
+                    document.documentElement.style.setProperty('--accept-btn-bg', theme.accept_btn_bg);
+                    document.documentElement.style.setProperty('--deny-btn-bg', theme.deny_btn_bg);
+                    document.documentElement.style.setProperty('--remove-btn-bg', theme.remove_btn_bg);
+
+                    updateStatusButtonDisplay(requestsEnabled); // Update UI based on combined response
+
+                    let htmlContent = '';
+                    queue.forEach((song, index) => {
+                        const statusClass = song.status.toLowerCase();
+                        htmlContent += `
+                            <div class="song-row ${statusClass}">
+                                <div class="queue-number">${index + 1}:</div>
+                                <div class="song-info-wrapper">
+                                    <div class="song-title-artist-line">
+                                        <span>${escapeHtml(song.song)} - ${escapeHtml(song.artist)}</span>
+                                        <span class="time-ago">${formatTimeAgo(song.age_seconds)}</span>
+                                    </div>
+                                    <div class="requester">by ${escapeHtml(song.user)}</div>
+                                </div>
+                                <div class="action-buttons-container">
+                                    <button class="action-btn accept-btn" data-action="accept" data-id="${song.id}">&#10003;</button>
+                                    <button class="action-btn deny-btn" data-action="deny" data-id="${song.id}">&#128711;</button>
+                                    <button class="action-btn remove-btn" data-action="remove" data-id="${song.id}">&#10799;</button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    songQueueContainer.innerHTML = htmlContent;
+
+                    // Reattach event listeners to new buttons
+                    document.querySelectorAll('.action-btn').forEach(button => {
+                        button.onclick = function() {
+                            sendAction(this.dataset.action, this.dataset.id);
+                        };
+                    });
+
+                } catch (error) {
+                    console.error('Error fetching data:', error);
+                }
+            }
+
+            // Function to send action to the server
+            async function sendAction(action, id) {
+                try {
+                    const response = await fetch('/update_song_status', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ id: id, action: action })
+                    });
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    await updateQueueDisplay(); // Refresh queue after action
+                } catch (error) {
+                    console.error('Error sending action:', error);
+                }
+            }
+
+            // Simple HTML escaping to prevent XSS
+            function escapeHtml(text) {
+                var map = {
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#039;'
+                };
+                return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+            }
+
+            function formatTimeAgo(seconds) {
+                if (seconds < 60) {
+                    return `${seconds} second${seconds !== 1 ? 's' : ''} ago`;
+                } else if (seconds < 3600) {
+                    const minutes = Math.floor(seconds / 60);
+                    const remainingSeconds = seconds % 60;
+                    if (remainingSeconds > 0) {
+                        return `${minutes} minute${minutes !== 1 ? 's' : ''} ${remainingSeconds} second${remainingSeconds !== 1 ? 's' : ''} ago`;
+                    }
+                    return `${minutes} minute${minutes !== 1 ? 's' : ''} ago`;
+                } else if (seconds < 86400) {
+                    const hours = Math.floor(seconds / 3600);
+                    const minutes = Math.floor((seconds % 3600) / 60);
+                    if (minutes > 0) {
+                        return `${hours} hour${hours !== 1 ? 's' : ''} ${minutes} minute${minutes !== 1 ? 's' : ''} ago`;
+                    }
+                    return `${hours} hour${hours !== 1 ? 's' : ''} ago`;
+                } else {
+                    const days = Math.floor(seconds / 86400);
+                    return `${days} day${days !== 1 ? 's' : ''} ago`;
+                }
+            }
+
+            // Toggle functionality for the ON/OFF button
+            statusToggleButton.addEventListener('click', async function() {
+                // Send request to toggle status
+                const newStatus = !currentStatus;
+                try {
+                    const response = await fetch(`/toggle_requests?status=${newStatus ? 'on' : 'off'}`);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    const result = await response.json();
+                    updateStatusButtonDisplay(result.enabled); // Update UI based on server's response
+                    updateQueueDisplay(); // Refresh queue (though not strictly necessary for status change)
+                } catch (error) {
+                    console.error('Error toggling status:', error);
+                }
+            });
+
+            // Initial display and then update every 5 seconds
+            updateQueueDisplay();
+            setInterval(updateQueueDisplay, 5000); 
+        });
+    </script>
+</body>
+</html>

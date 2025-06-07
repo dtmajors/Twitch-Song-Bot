@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Twitch Song Request Bot Tutorial</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .main-layout {
+            display: flex;
+            width: 100%;
+        }
+
+        .side-panel {
+            width: 280px; /* Wider side panel for more descriptive titles */
+            background-color: #34495e;
+            padding: 20px 0;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.4);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        .side-panel h2 {
+            color: #ffffff;
+            text-align: center;
+            margin-top: 0;
+            margin-bottom: 20px;
+            padding: 0 15px;
+            font-size: 1.5em;
+        }
+
+        .side-panel button {
+            display: block;
+            width: 100%;
+            padding: 15px 20px;
+            text-align: left;
+            background-color: transparent;
+            border: none;
+            color: #ecf0f1;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .side-panel button:hover {
+            background-color: #4a6270;
+        }
+
+        .side-panel button.active {
+            background-color: #3498db;
+            color: #ffffff;
+            box-shadow: inset 0 0 8px rgba(0,0,0,0.3);
+        }
+
+        .content-area {
+            flex-grow: 1;
+            background-color: #2c3e50;
+            padding: 25px;
+            overflow-y: auto;
+        }
+
+        .tutorial-section {
+            background-color: #34495e;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.6);
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: #ffffff;
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #3498db;
+        }
+
+        h2 {
+            color: #ffffff;
+            margin-top: 0;
+            margin-bottom: 15px;
+            padding-bottom: 5px;
+            border-bottom: 1px dashed #5a7d9a;
+        }
+        
+        h3 {
+            color: #f39c12;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+
+        p {
+            margin-bottom: 15px;
+            color: #bdc3c7;
+        }
+
+        ol, ul {
+            margin-bottom: 15px;
+            padding-left: 25px;
+            color: #bdc3c7;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        a {
+            color: #3498db;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        a:hover {
+            color: #2980b9;
+            text-decoration: underline;
+        }
+
+        code {
+            background-color: #4a6270;
+            padding: 2px 4px;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            color: #ecf0f1;
+        }
+
+        pre {
+            background-color: #2a3d4f;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Courier New', monospace;
+            color: #e0e0e0;
+            margin-bottom: 15px;
+            border: 1px solid #5a7d9a;
+        }
+
+        .highlight {
+            color: #f1c40f; /* Yellowish highlight */
+            font-weight: bold;
+        }
+
+        .warning {
+            background-color: #e74c3c;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        .info {
+            background-color: #3498db;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+        }
+
+        .tab-content {
+            display: none; /* Hidden by default */
+        }
+        .tab-content.active {
+            display: block; /* Show active tab content */
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .main-layout {
+                flex-direction: column;
+            }
+            .side-panel {
+                width: 100%;
+                padding: 10px 0;
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+            }
+            .side-panel button {
+                padding: 10px 15px;
+                font-size: 1em;
+            }
+            .content-area {
+                padding: 15px;
+            }
+            .tutorial-section {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-layout">
+        <div class="side-panel">
+            <h2>Tutorial Steps</h2>
+            <button class="tab-button active" data-tab="introduction">1. Introduction</button>
+            <button class="tab-button" data-tab="prerequisites">2. Prerequisites</button>
+            <button class="tab-button" data-tab="get-files">3. Get Bot Files</button>
+            <button class="tab-button" data-tab="twitch-setup">4. Twitch Bot Setup</button>
+            <button class="tab-button" data-tab="oauth-token">5. Get Your OAuth Token</button>
+            <button class="tab-button" data-tab="initial-config">6. Initial Configuration</button>
+            <button class="tab-button" data-tab="run-bot">7. Run The Bot</button>
+            <button class="tab-button" data-tab="web-interfaces">8. Web Interfaces</button>
+            <button class="tab-button" data-tab="configure-ui">9. Configure Bot (Web UI)</button>
+            <button class="tab-button" data-tab="manage-songs">10. Manage Songs (Web UI)</button>
+            <button class="tab-button" data-tab="obs-setup">11. OBS Browser Source</button>
+            <button class="tab-button" data-tab="chat-commands">12. Twitch Chat Commands</button>
+            <button class="tab-button" data-tab="troubleshooting">13. Troubleshooting</button>
+            <button class="tab-button" data-tab="conclusion">14. Conclusion</button>
+        </div>
+
+        <div class="content-area">
+            <div id="introduction" class="tab-content active tutorial-section">
+                <h1>Twitch Song Request Bot Tutorial</h1>
+                <h2>1. Introduction</h2>
+                <p>Welcome to the complete guide for setting up your very own Twitch Song Request Bot! This bot allows your viewers to request songs directly in your Twitch chat, and you can manage the queue, accept, deny, or remove songs through a user-friendly web interface.</p>
+                <p>This tutorial will guide you through every step, from setting up your Python environment to integrating the bot with OBS, even if you have no prior experience with Python or coding.</p>
+                <p class="info"><strong>What you'll achieve:</strong></p>
+                <ul>
+                    <li>A functional Twitch bot that listens for song requests.</li>
+                    <li>A web interface to manage your song queue in real-time.</li>
+                    <li>Integration with OBS (or other streaming software) to display the song queue directly on your stream.</li>
+                </ul>
+            </div>
+
+            <div id="prerequisites" class="tab-content tutorial-section">
+                <h2>2. Prerequisites</h2>
+                <p>Before we begin, ensure you have the following installed on your computer:</p>
+                <h3>2.1. Python 3</h3>
+                <p>The bot is written in Python 3. You can download the latest version from the official Python website.</p>
+                <ol>
+                    <li>Go to: <a href="https://www.python.org/downloads/" target="_blank">Python Downloads</a></li>
+                    <li>Download the installer for your operating system (Windows, macOS, Linux).</li>
+                    <li>
+                        <strong>Important for Windows:</strong> During installation, make sure to check the box that says <span class="highlight">"Add Python X.Y to PATH"</span>. This is crucial for running Python commands easily from your terminal.
+                        <br>
+                        <img src="https://placehold.co/600x300/3498db/ffffff?text=Python+Installer+Add+to+PATH" alt="Python Installer Add to PATH" style="max-width:100%; height:auto; border-radius: 8px; margin-top: 10px;">
+                    </li>
+                    <li>Follow the on-screen instructions to complete the installation.</li>
+                </ol>
+                <h3>2.2. A Text Editor</h3>
+                <p>You'll need a good text editor to modify the bot's configuration files. Recommended options:</p>
+                <ul>
+                    <li><a href="https://code.visualstudio.com/" target="_blank">Visual Studio Code (VS Code)</a> (Free, highly recommended)</li>
+                    <li>Notepad++ (Windows)</li>
+                    <li>Sublime Text</li>
+                    <li>Atom</li>
+                </ul>
+                <p class="info"><strong>Verification:</strong> To check if Python is installed correctly, open your Command Prompt (Windows) or Terminal (macOS/Linux) and type:</p>
+                <pre><code>python --version</code></pre>
+                <p>You should see a version number like `Python 3.x.x`.</p>
+            </div>
+
+            <div id="get-files" class="tab-content tutorial-section">
+                <h2>3. Get Bot Files</h2>
+                <p>You will need the following Python and HTML files for your bot to function. Make sure all these files are saved in the <span class="highlight">same folder</span> on your computer:</p>
+                <ul>
+                    <li><span class="highlight"><code>song_request_bot.py</code></span>: The main Python script that runs your bot and web server.</li>
+                    <li><span class="highlight"><code>config.json</code></span>: Your bot's custom configuration settings (token, channel, theme, messages).</li>
+                    <li><span class="highlight"><code>default_config.json</code></span>: Contains default settings for theme and bot responses. This file helps restore defaults easily.</li>
+                    <li><span class="highlight"><code>song_queue.html</code></span>: The web page that displays your live song queue for OBS and direct viewing.</li>
+                    <li><span class="highlight"><code>config.html</code></span>: The web page where you can easily configure your bot's settings through a browser.</li>
+                </ul>
+                <p class="info">If you received these files, ensure they are all together in one dedicated folder (e.g., `C:\TwitchBot\`).</p>
+                <p>If you need to generate these files, the person who provided the bot should have given you instructions or a way to get them.</p>
+            </div>
+
+            <div id="twitch-setup" class="tab-content tutorial-section">
+                <h2>4. Twitch Bot Setup</h2>
+                <p>It's highly recommended to create a <span class="highlight">separate Twitch account for your bot</span>. This keeps your main streaming account secure and prevents the bot from accidentally posting with your streamer name.</p>
+                <ol>
+                    <li>Go to <a href="https://www.twitch.tv/signup" target="_blank">Twitch Sign Up</a> and create a new account.</li>
+                    <li>Choose a unique <span class="highlight">Bot Nickname</span> (e.g., `YourChannelNameBot`).</li>
+                    <li>Log into this new bot account once to confirm it's active.</li>
+                    <li>Remember your <span class="highlight">Main Channel Name</span> (your streamer name, e.g., `marshallaw`) and your new <span class="highlight">Bot Nickname</span> (e.g., `marshalsongbot`). You'll need these for configuration.</li>
+                    <li>You will also need to moderate your bot in your main channel. To do this, in your Twitch chat, type:
+                        <pre><code>/mod yourbotnickname</code></pre>
+                        (Replace `yourbotnickname` with your bot's actual Twitch username).
+                    </li>
+                </ol>
+            </div>
+
+            <div id="oauth-token" class="tab-content tutorial-section">
+                <h2>5. Get Your OAuth Token</h2>
+                <p>The bot needs a special token (OAuth token) to connect to Twitch chat as your bot account.</p>
+                <ol>
+                    <li>Open your web browser and go to: <a href="https://twitchtokengenerator.com/" target="_blank">Twitch Token Generator</a></li>
+                    <li>
+                        <span class="warning"><strong>CRITICAL:</strong></span> Make sure you are <span class="highlight">logged into your <a href="https://www.twitch.tv" target="_blank">Twitch bot account</a></span> in your browser before clicking the button on the token generator site. Do NOT use your main streamer account.
+                        <img src="https://placehold.co/600x150/e74c3c/ffffff?text=Ensure+Bot+Account+is+Logged+In" alt="Ensure Bot Account is Logged In" style="max-width:100%; height:auto; border-radius: 8px; margin-top: 10px;">
+                    </li>
+                    <li>On the Twitch Token Generator page, click the button to generate a <span class="highlight">"Bot Chat Token"</span> (sometimes labeled "Twitch Chat OAuth Token").</li>
+                    <li>Twitch will ask you to authorize the application. Click "Authorize".</li>
+                    <li>You will be presented with a long string of characters that starts with <span class="highlight"><code>oauth:</code></span>. This is your Bot Token.</li>
+                    <li><span class="warning"><strong>Copy this entire token immediately!</strong></span> You will need it for the next step. It looks something like: <br><code>oauth:abcdef1234567890abcdef1234567890abcdef1234567890</code></li>
+                </ol>
+            </div>
+
+            <div id="initial-config" class="tab-content tutorial-section">
+                <h2>6. Initial Configuration (`config.json`)</h2>
+                <p>Now, let's put your Twitch details into the bot's configuration file. This is the <span class="highlight">only file you need to manually edit initially</span> before running the bot.</p>
+                <ol>
+                    <li>Navigate to the folder where you saved all your bot files.</li>
+                    <li>Open the file named <span class="highlight"><code>config.json</code></span> using your chosen text editor (e.g., VS Code).</li>
+                    <li>You will see content similar to this:
+                        <pre><code>{
+    "BOT_TOKEN": "oauth:YOUR_BOT_TOKEN_HERE",
+    "CHANNEL": "your_channel_name_here",
+    "BOT_NICK": "your_bot_nickname_here",
+    "SONG_REQUESTS_ENABLED": false,
+    "theme": {
+        "font_family": "'Segoe UI', Arial, sans-serif",
+        "header_bg": "#4b4848",
+        ...
+    },
+    "command_responses": {
+        "sr_disabled_message": "@{author_name} - Sorry...",
+        ...
+    }
+}</code></pre>
+                    </li>
+                    <li>
+                        Carefully replace the placeholder values:
+                        <ul>
+                            <li><span class="highlight"><code>"BOT_TOKEN": "oauth:YOUR_BOT_TOKEN_HERE"</code></span>: Replace <code>oauth:YOUR_BOT_TOKEN_HERE</code> with the full OAuth token you copied in Step 5. Make sure to keep the <code>"oauth:"</code> part and the quotation marks.</li>
+                            <li><span class="highlight"><code>"CHANNEL": "your_channel_name_here"</code></span>: Replace <code>your_channel_name_here</code> with your <span class="highlight">main Twitch channel name</span> (your streamer name, all lowercase).</li>
+                            <li><span class="highlight"><code>"BOT_NICK": "your_bot_nickname_here"</code></span>: Replace <code>your_bot_nickname_here</code> with your <span class="highlight">bot's Twitch username</span> (all lowercase).</li>
+                        </ul>
+                    </li>
+                    <li><span class="warning"><strong>Save the <code>config.json</code> file!</strong></span> This is very important.</li>
+                </ol>
+                <p class="info">The <code>"theme"</code> and <code>"command_responses"</code> sections are managed through the web interface later, so you don't need to touch them here.</p>
+            </div>
+
+            <div id="run-bot" class="tab-content tutorial-section">
+                <h2>7. Run The Bot</h2>
+                <p>Now that your `config.json` is set up, you can start your bot!</p>
+                <p class="warning">If you restart the bot after making changes to <code>config.json</code>, make sure to <span class="highlight">save the file first</span>.</p>
+                <h3>7.1. Open Command Prompt / Terminal</h3>
+                <ol>
+                    <li>
+                        <strong>Windows:</strong>
+                        <ul>
+                            <li>Click the Start button, type <span class="highlight"><code>cmd</code></span> or <span class="highlight"><code>Command Prompt</code></span>, and press Enter.</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <strong>macOS:</strong>
+                        <ul>
+                            <li>Open Finder > Applications > Utilities > <span class="highlight">Terminal</span>.</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <strong>Linux:</strong>
+                        <ul>
+                            <li>Open your distribution's terminal application (usually found in your applications menu).</li>
+                        </ul>
+                    </li>
+                </ol>
+                <h3>7.2. Navigate to the Bot's Folder</h3>
+                <p>You need to tell the Command Prompt/Terminal where your bot files are located. Use the <span class="highlight"><code>cd</code></span> command (change directory).</p>
+                <p><strong>Example:</strong> If your bot files are in `C:\TwitchBot\` (Windows) or `/Users/YourName/TwitchBot/` (macOS/Linux):</p>
+                <pre><code>cd C:\TwitchBot\</code></pre>
+                <p>Or for macOS/Linux:</p>
+                <pre><code>cd /Users/YourName/TwitchBot/</code></pre>
+                <p class="info">You can usually drag the folder icon into the terminal after typing `cd ` (with a space) to automatically get the path.</p>
+
+                <h3>7.3. Install Python Dependencies</h3>
+                <p>The bot uses external Python libraries. You need to install them once. In your Command Prompt/Terminal, with the correct folder open, type:</p>
+                <pre><code>pip install twitchio</code></pre>
+                <p>Press Enter. This will download and install the `twitchio` library. If you see "Requirement already satisfied", it's already installed.</p>
+
+                <h3>7.4. Run the Python Script</h3>
+                <p>Now, run the main bot script. In the same Command Prompt/Terminal window (still in your bot's folder), type:</p>
+                <pre><code>python song_request_bot.py</code></pre>
+                <p>Press Enter.</p>
+                <p class="info">
+                    You should see messages indicating the bot is starting and the web server is running (e.g., "Server started on port 8000", "Logged in as | your_bot_nickname").
+                    <br>
+                    Keep this Command Prompt/Terminal window open while you want the bot to be running. Closing it will shut down the bot.
+                </p>
+            </div>
+
+            <div id="web-interfaces" class="tab-content tutorial-section">
+                <h2>8. Web Interfaces</h2>
+                <p>Your bot provides two web interfaces that run locally on your computer. You can access them through your web browser while the bot is running.</p>
+                <h3>8.1. Song Queue Display</h3>
+                <p>This is the main display for your stream overlay. It shows the current song queue, request status, and action buttons.</p>
+                <p>Open your browser and go to:</p>
+                <pre><code>http://localhost:8000/song_queue.html</code></pre>
+                <p class="info">You'll see a header, the song request ON/OFF status, and an empty queue initially.</p>
+                <img src="https://placehold.co/600x250/34495e/ffffff?text=Song+Queue+Initial+View" alt="Song Queue Initial View" style="max-width:100%; height:auto; border-radius: 8px; margin-top: 10px;">
+
+                <h3>8.2. Bot Configuration Page</h3>
+                <p>This page allows you to customize almost all aspects of your bot without touching code (except for the initial `config.json` setup).</p>
+                <p>Open another tab in your browser and go to:</p>
+                <pre><code>http://localhost:8000/config.html</code></pre>
+                <p class="info">This page has a side panel for navigation between different settings sections.</p>
+                <img src="https://placehold.co/600x350/34495e/ffffff?text=Config+Page+Initial+View" alt="Config Page Initial View" style="max-width:100%; height:auto; border-radius: 8px; margin-top: 10px;">
+            </div>
+
+            <div id="configure-ui" class="tab-content tutorial-section">
+                <h2>9. Configure The Bot (Web UI)</h2>
+                <p>Use the `config.html` page to fine-tune your bot's behavior and appearance.</p>
+                <ol>
+                    <li>Go to <a href="http://localhost:8000/config.html" target="_blank">http://localhost:8000/config.html</a></li>
+                    <li>
+                        <h3>Bot Settings</h3>
+                        <p>This section displays your bot's connection details. You usually won't need to change these after the initial `config.json` setup, but you can verify them here.</p>
+                        <p>You'll also find the <span class="highlight">"Song Requests:" ON/OFF toggle</span>. This allows you to enable or disable song requests on the fly.</p>
+                        <p class="warning">Changing `BOT_TOKEN`, `CHANNEL`, or `BOT_NICK` here requires you to <span class="highlight">restart the Python bot script</span> in your Command Prompt/Terminal for changes to take effect.</p>
+                    </li>
+                    <li>
+                        <h3>Theme & UI Colors</h3>
+                        <p>Customize the look of your song queue display.</p>
+                        <ul>
+                            <li><span class="highlight">Font Family:</span> Use the dropdown to visually select a font.</li>
+                            <li><span class="highlight">Font Size:</span> Set the font size in pixels.</li>
+                            <li><span class="highlight">Color Pickers:</span> Click on the color squares to open a color picker and select new colors for various elements (header, text, buttons, queue rows, etc.).</li>
+                            <li><span class="highlight">Load Default Colors:</span> Click this button to reset all theme settings to their original default values.</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <h3>Bot Responses</h3>
+                        <p>Customize the messages your bot sends in Twitch chat for different commands and scenarios.</p>
+                        <ul>
+                            <li>Edit the textareas for each response.</li>
+                            <li>You can use <span class="highlight">placeholders</span> like <code>@{author_name}</code>, <code>{song}</code>, <code>{artist}</code>, etc., which the bot will automatically replace with relevant information.</li>
+                            <li><span class="highlight">Load Default Bot Speak:</span> Click this button to reset all bot messages to their original default values.</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <h3>Saving Changes</h3>
+                        <p>After making any changes in any section:</p>
+                        <ul>
+                            <li>Click the <span class="highlight">"Save Configuration"</span> button. You'll see a success message.</li>
+                            <li>Clicking <span class="highlight">"Reset Configuration"</span> will revert unsaved changes on the page back to the last saved state from `config.json`.</li>
+                        </ul>
+                        <p class="info">For theme and bot response changes, they should apply immediately to your `song_queue.html` page. For token/channel/nick changes, a bot restart is needed.</p>
+                    </li>
+                </ol>
+            </div>
+
+            <div id="manage-songs" class="tab-content tutorial-section">
+                <h2>10. Manage Songs (Web UI)</h2>
+                <p>The `song_queue.html` page (accessible at <a href="http://localhost:8000/song_queue.html" target="_blank">http://localhost:8000/song_queue.html</a>) is your command center for managing song requests.</p>
+                <ol>
+                    <li>
+                        <h3>Toggle Song Requests</h3>
+                        <p>At the top of the page, there's a large button: <span class="highlight">"Song Requests: ON/OFF"</span>. Click this to enable or disable song requests for your viewers.</p>
+                    </li>
+                    <li>
+                        <h3>Song Queue Display</h3>
+                        <p>When viewers request songs, they will appear here. Each song entry shows:</p>
+                        <ul>
+                            <li>Queue number</li>
+                            <li>Song Title and Artist</li>
+                            <li>Requester's name</li>
+                            <li>Time since requested</li>
+                            <li>Current status (Pending, Accepted, Denied) via a badge and border color.</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <h3>Action Buttons</h3>
+                        <p>Each song in the queue has action buttons:</p>
+                        <ul>
+                            <li><span class="highlight">Accept:</span> Marks the song as "Accepted". The bot will announce the song in chat.</li>
+                            <li><span class="highlight">Deny:</span> Marks the song as "Denied". The bot will announce the denial in chat.</li>
+                            <li><span class="highlight">Remove:</span> Permanently removes the song from the queue.</li>
+                        </ul>
+                        <p class="info">These actions update the queue in real-time, and the changes are saved to `song_queue.json` automatically.</p>
+                    </li>
+                </ol>
+            </div>
+
+            <div id="obs-setup" class="tab-content tutorial-section">
+                <h2>11. OBS Browser Source Setup</h2>
+                <p>To display your live song queue on your Twitch stream, you'll use OBS Studio's "Browser" source.</p>
+                <ol>
+                    <li>
+                        <h3>Add a New Source</h3>
+                        <p>In OBS Studio, in the "Sources" dock, click the <span class="highlight">"+"</span> icon at the bottom.
+                        <img src="https://placehold.co/600x150/2ecc71/ffffff?text=OBS+Add+Source+Button" alt="OBS Add Source Button" style="max-width:100%; height:auto; border-radius: 8px; margin-top: 10px;">
+                        </p>
+                    </li>
+                    <li>
+                        <h3>Select Browser</h3>
+                        <p>From the list, choose <span class="highlight">"Browser"</span>.
+                        <img src="https://placehold.co/600x200/3498db/ffffff?text=OBS+Browser+Source+Selection" alt="OBS Browser Source Selection" style="max-width:100%; height:auto; border-radius: 8px; margin-top: 10px;">
+                        </p>
+                    </li>
+                    <li>
+                        <h3>Create New & Name It</h3>
+                        <p>Select <span class="highlight">"Create new"</span>, give it a name (e.g., "Song Queue Display"), and click "OK".</p>
+                    </li>
+                    <li>
+                        <h3>Configure Browser Source</h3>
+                        <p>In the "Properties for 'Song Queue Display'" window:</p>
+                        <ul>
+                            <li><span class="highlight">URL:</span> Enter the local address for your song queue:
+                                <pre><code>http://localhost:8000/song_queue.html</code></pre>
+                            </li>
+                            <li><span class="highlight">Width:</span> Set to <code>500</code> (or a width that fits your stream layout, e.g., 600 or 700).</li>
+                            <li><span class="highlight">Height:</span> Set to <code>1080</code> (or a height that fits your stream layout).</li>
+                            <li><span class="highlight">Control Audio via OBS:</span> Check this if you want to manage the browser source's audio directly in OBS (though this bot doesn't produce sound).</li>
+                            <li><span class="highlight">Shutdown source when not visible:</span> Check this to save resources.</li>
+                            <li><span class="highlight">Refresh browser when scene becomes active:</span> Check this to ensure the queue updates if you switch scenes.</li>
+                        </ul>
+                        <img src="https://placehold.co/600x400/34495e/ffffff?text=OBS+Browser+Source+Properties" alt="OBS Browser Source Properties" style="max-width:100%; height:auto; border-radius: 8px; margin-top: 10px;">
+                    </li>
+                    <li>
+                        <h3>Interacting with the OBS Source</h3>
+                        <p>While the OBS source is active, you can right-click it in your scene and select <span class="highlight">"Interact"</span>. This will open a window where you can click the "Accept," "Deny," "Remove" buttons, and the "Song Requests: ON/OFF" toggle on the live queue display, just like in a regular browser.</p>
+                        <img src="https://placehold.co/600x250/2ecc71/ffffff?text=OBS+Interact+Option" alt="OBS Interact Option" style="max-width:100%; height:auto; border-radius: 8px; margin-top: 10px;">
+                    </li>
+                </ol>
+            </div>
+
+            <div id="chat-commands" class="tab-content tutorial-section">
+                <h2>12. Twitch Chat Commands</h2>
+                <p>Here are the commands your viewers (and you) can use in Twitch chat:</p>
+                <ul>
+                    <li>
+                        <span class="highlight"><code>!sr &lt;song name&gt; by &lt;artist&gt;</code></span> OR <span class="highlight"><code>!sr &lt;song name&gt; - &lt;artist&gt;</code></span>
+                        <p>Requests a song. Example: <code>!sr Bohemian Rhapsody by Queen</code></p>
+                    </li>
+                    <li>
+                        <span class="highlight"><code>!remove</code></span>
+                        <p>Removes the requester's most recent pending song request from the queue.</p>
+                    </li>
+                    <li>
+                        <span class="highlight"><code>!edit &lt;new song name&gt; by &lt;new artist&gt;</code></span> OR <span class="highlight"><code>!edit &lt;new song name&gt; - &lt;new artist&gt;</code></span>
+                        <p>Edits the requester's most recent pending song request. Example: <code>!edit Stairway to Heaven by Led Zeppelin</code></p>
+                    </li>
+                    <li>
+                        <span class="highlight"><code>!current</code></span>
+                        <p>Shows the current song playing (the first song in the "Accepted" or "Pending" part of the queue).</p>
+                    </li>
+                    <li>
+                        <span class="highlight"><code>!pos</code></span>
+                        <p>Shows the requester's position in the queue for their top pending song.</p>
+                    </li>
+                    <li>
+                        <span class="highlight"><code>!skip</code></span>
+                        <p>Allows the requester to skip their own most recent pending song request. (Only skips if it's their own song and it's pending/accepted).</p>
+                    </li>
+                </ul>
+                <p class="info">
+                    Remember that you can customize the bot's responses to these commands in the "Bot Responses" section of the `config.html` web interface.
+                </p>
+            </div>
+
+            <div id="troubleshooting" class="tab-content tutorial-section">
+                <h2>13. Troubleshooting Common Issues</h2>
+                <p>If you encounter problems, here are some common issues and their solutions:</p>
+                <h3>13.1. "Python is not recognized" or "pip is not recognized"</h3>
+                <ul>
+                    <li><p><strong>Issue:</strong> Your computer doesn't know where to find Python or pip.</p></li>
+                    <li><p><strong>Solution:</strong> You likely didn't check "Add Python X.Y to PATH" during Python installation. You'll need to reinstall Python and ensure that box is checked, or manually add Python to your system's PATH environment variables (a more advanced step).</p></li>
+                </ul>
+                <h3>13.2. "ModuleNotFoundError: No module named 'twitchio'"</h3>
+                <ul>
+                    <li><p><strong>Issue:</strong> The `twitchio` library is not installed.</p></li>
+                    <li><p><strong>Solution:</strong> Open your Command Prompt/Terminal, navigate to your bot's folder (Step 7.2), and run `pip install twitchio` (Step 7.3).</p></li>
+                </ul>
+                <h3>13.3. "Address already in use" or "Port 8000 is already in use"</h3>
+                <ul>
+                    <li><p><strong>Issue:</strong> Another program on your computer is already using port 8000, or you have another instance of the bot running.</p></li>
+                    <li><p><strong>Solution:</strong>
+                        <ol>
+                            <li>Close any other programs that might be using web ports (like other local web servers).</li>
+                            <li>Check your Task Manager (Windows) or Activity Monitor (macOS) for duplicate Python processes and end them.</li>
+                            <li>Restart your computer.</li>
+                            <li>If the issue persists, you might need to change the port in `song_request_bot.py` (e.g., change `8000` to `8001`), but this is more advanced.</li>
+                        </ol>
+                    </p></li>
+                </ul>
+                <h3>13.4. Bot not connecting to Twitch chat / Not responding to commands</h3>
+                <ul>
+                    <li><p><strong>Issue:</strong> The bot is running, but nothing happens in Twitch chat.</p></li>
+                    <li><p><strong>Solution:</strong>
+                        <ol>
+                            <li><span class="highlight"><strong>Check your OAuth Token:</strong></span> Go back to Step 5. Ensure you copied the FULL token (including `oauth:`) and that it was generated while logged into your <span class="highlight">bot's Twitch account</span>. Re-generate if unsure.</li>
+                            <li><span class="highlight"><strong>Check `config.json` values:</strong></span>
+                                <ul>
+                                    <li>`BOT_TOKEN`: Is it copied correctly and inside quotation marks?</li>
+                                    <li>`CHANNEL`: Is it your exact streamer name, all lowercase, inside quotation marks?</li>
+                                    <li>`BOT_NICK`: Is it your bot's exact Twitch username, all lowercase, inside quotation marks?</li>
+                                </ul>
+                            </li>
+                            <li><span class="highlight"><strong>Restart the Python script:</strong></span> After any changes to `config.json`, you *must* stop and restart the `song_request_bot.py` script.</li>
+                            <li><span class="highlight"><strong>Moderator Status:</strong></span> Ensure your bot account has been given moderator privileges in your channel using `/mod yourbotnickname`.</li>
+                            <li><span class="highlight"><strong>Song Requests Enabled:</strong></span> Check the ON/OFF toggle on `song_queue.html` or `config.html`. If it's OFF, requests won't work.</li>
+                        </ol>
+                    </p></li>
+                </ul>
+                <h3>13.5. Web pages (localhost:8000/...) show "404 Not Found" or don't load</h3>
+                <ul>
+                    <li><p><strong>Issue:</strong> The web server part of the bot isn't working correctly or the files aren't found.</p></li>
+                    <li><p><strong>Solution:</strong>
+                        <ol>
+                            <li>Ensure the `song_request_bot.py` script is running in the Command Prompt/Terminal and that you see "Server started on port 8000".</li>
+                            <li>Verify that `song_queue.html`, `config.html`, `config.json`, and `default_config.json` are all in the <span class="highlight">exact same folder</span> as `song_request_bot.py`.</li>
+                            <li>Double-check the URL you are typing in the browser.</li>
+                        </ol>
+                    </p></li>
+                </ul>
+            </div>
+
+            <div id="conclusion" class="tab-content tutorial-section">
+                <h2>14. Conclusion</h2>
+                <p>Congratulations! You have successfully set up and configured your Twitch Song Request Bot. You now have a powerful tool to engage with your community and manage song requests efficiently during your streams.</p>
+                <p>Remember to always keep your `song_request_bot.py` script running in the background while you are streaming and want the bot to be active.</p>
+                <p>Enjoy enhancing your Twitch streams with interactive song requests!</p>
+                <p class="info">If you have any further questions or encounter persistent issues, refer back to this guide or seek assistance from the bot's developer.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get all tab buttons and tab content sections
+            const tabButtons = document.querySelectorAll('.side-panel .tab-button');
+            const tabContents = document.querySelectorAll('.content-area .tab-content');
+
+            // Function to activate a specific tab
+            function activateTab(tabId) {
+                // Deactivate all tab buttons and content sections
+                tabButtons.forEach(button => button.classList.remove('active'));
+                tabContents.forEach(content => content.classList.remove('active'));
+
+                // Activate the selected tab button and content
+                const selectedButton = document.querySelector(`.side-panel button[data-tab="${tabId}"]`);
+                const selectedContent = document.getElementById(tabId);
+
+                if (selectedButton) {
+                    selectedButton.classList.add('active');
+                }
+                if (selectedContent) {
+                    selectedContent.classList.add('active');
+                    selectedContent.scrollIntoView({ behavior: 'smooth', block: 'start' }); // Scroll to top of content
+                }
+            }
+
+            // Add click event listeners to tab buttons
+            tabButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const tabId = this.dataset.tab;
+                    activateTab(tabId);
+                });
+            });
+
+            // Activate the first tab on page load
+            activateTab('introduction');
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Bot Configuration</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .main-layout {
+            display: flex;
+            width: 100%;
+        }
+
+        .side-panel {
+            width: 220px;
+            background-color: #34495e;
+            padding: 20px 0;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.4);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        .side-panel button {
+            display: block;
+            width: 100%;
+            padding: 15px 20px;
+            text-align: left;
+            background-color: transparent;
+            border: none;
+            color: #ecf0f1;
+            font-size: 17px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .side-panel button:hover {
+            background-color: #4a6270;
+        }
+
+        .side-panel button.active {
+            background-color: #3498db;
+            color: #ffffff;
+        }
+
+        .content-area {
+            flex-grow: 1;
+            background-color: #2c3e50;
+            padding: 25px;
+            overflow-y: auto;
+            position: relative; /* Needed for positioning the back button */
+        }
+
+        /* Back Button Styling */
+        .back-button {
+            position: absolute;
+            top: 20px;
+            right: 20px; /* Changed from left to right */
+            font-size: 60px; /* Much bigger font size */
+            color: #3498db; /* Blue color */
+            text-decoration: none;
+            line-height: 1;
+            padding: 5px 10px;
+            border-radius: 5px;
+            transition: color 0.2s ease, background-color 0.2s ease;
+            z-index: 10; /* Ensure it's above other content */
+        }
+        .back-button:hover {
+            color: #2980b9;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #34495e;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.6);
+            margin-top: 40px; /* Push content down to make space for back button */
+        }
+
+        h1, h2 {
+            color: #ffffff;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+            margin-top: 25px;
+        }
+
+        .section-group {
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: #3f5872;
+            border-radius: 8px;
+            box-shadow: inset 0 0 8px rgba(0,0,0,0.3);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #bdc3c7;
+        }
+
+        input[type="text"],
+        input[type="color"],
+        textarea,
+        select { /* Combined styling for all input types including select */
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #7f8c8d;
+            border-radius: 5px;
+            background-color: #4a6270;
+            color: #ecf0f1;
+            box-sizing: border-box;
+            -webkit-appearance: none; /* Remove default browser styling for selects */
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23bdc3c7%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13.2-6.4H18.4c-11.9%200-20.2%2011.9-15.7%2022.9l132.8%20141.6c4.6%204.9%2011.8%207.2%2019.2%207.2s14.6-2.3%2019.2-7.2l132.8-141.6c4.5-11-3.8-22.9-15.7-22.9z%22%2F%3E%3C%2Fsvg%3E'); /* Custom arrow for select */
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 12px;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        input[type="color"] {
+            height: 40px;
+            padding: 3px;
+            background-image: none; /* Remove arrow from color input */
+        }
+
+        /* --- Buttons --- */
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            color: #ffffff;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        /* Specific Button Styles */
+        .save-button {
+            background-color: #27ae60;
+        }
+        .save-button:hover {
+            background-color: #2ecc71;
+            transform: translateY(-2px);
+        }
+        .save-button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        .load-default-button {
+            background-color: #f39c12;
+        }
+        .load-default-button:hover {
+            background-color: #f1c40f;
+            transform: translateY(-2px);
+        }
+        .load-default-button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 3px rgba(0, 0, 0, 0.3);
+        }
+        
+        .reset-button {
+            background-color: #c0392b;
+        }
+        .reset-button:hover {
+            background-color: #e74c3c;
+            transform: translateY(-2px);
+        }
+        .reset-button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Status message styling */
+        .status-message {
+            padding: 10px;
+            margin-top: 20px;
+            border-radius: 5px;
+            font-weight: bold;
+            display: none;
+            text-align: center;
+        }
+        .status-message.success {
+            background-color: #28a745;
+            color: white;
+        }
+        .status-message.error {
+            background-color: #dc3545;
+            color: white;
+        }
+        .status-message.info {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .toggle-button {
+            background-color: #3498db;
+            padding: 8px 15px;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            margin-left: 10px;
+            display: inline-block;
+        }
+        .toggle-button:hover {
+            background-color: #2980b9;
+        }
+        .toggle-button.on {
+            background-color: #28a745;
+        }
+        .toggle-button.off {
+            background-color: #dc3545;
+        }
+        .bot-status-line {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .bot-status-line label {
+            margin-bottom: 0;
+            margin-right: 10px;
+        }
+
+        .color-inputs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+        .color-input-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: flex-start;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            gap: 10px;
+        }
+        .button-group button {
+            margin-right: 0;
+            margin-bottom: 0;
+        }
+
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Specific style for font options in the dropdown */
+        .font-option {
+            font-family: sans-serif; /* Default for the option itself, will be overridden */
+            padding: 5px 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-layout">
+        <div class="side-panel">
+            <button class="tab-button active" data-tab="bot-settings">Bot Settings</button>
+            <button class="tab-button" data-tab="ui-colors">Theme & UI Colors</button>
+            <button class="tab-button" data-tab="bot-commands">Bot Responses</button>
+        </div>
+
+        <div class="content-area">
+            <a href="/song_queue.html" class="back-button" title="Back to Main Page">&#8592;</a> 
+
+            <div id="statusMessage" class="status-message"></div>
+
+            <div id="bot-settings" class="tab-content active container">
+                <h1>Bot Connection Settings</h1>
+                <div class="section-group">
+                    <label for="botToken">Bot Token (oauth:...) </label>
+                    <input type="text" id="botToken" placeholder="oauth:YOUR_BOT_TOKEN_HERE">
+
+                    <label for="channel">Channel Name</label>
+                    <input type="text" id="channel" placeholder="your_channel_name_here">
+
+                    <label for="botNick">Bot Nickname</label>
+                    <input type="text" id="botNick" placeholder="your_bot_nickname_here">
+
+                    <div class="bot-status-line">
+                        <label>Song Requests:</label>
+                        <button type="button" id="srStatusToggle" class="toggle-button">
+                            Status: <span id="srStatusText">OFF</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="button-group">
+                    <button type="button" class="save-button" onclick="saveConfig()">Save Configuration</button>
+                    <button type="button" class="reset-button" onclick="resetConfig()">Reset Configuration</button>
+                </div>
+            </div>
+
+            <div id="ui-colors" class="tab-content container">
+                <h1>Theme & UI Colors</h1>
+                <div class="section-group">
+                    <label for="fontFamilySelect">Font Family</label>
+                    <select id="fontFamilySelect">
+                        <option value="" class="font-option" style="font-family: sans-serif;">Select a Font</option>
+                    </select>
+
+                    <label for="fontSize">Font Size (px)</label>
+                    <input type="text" id="fontSize" placeholder="16">
+
+                    <div class="color-inputs-grid">
+                        <div class="color-input-group">
+                            <label for="headerBg">Header Background</label>
+                            <input type="color" id="headerBg">
+                        </div>
+                        <div class="color-input-group">
+                            <label for="headerTextColor">Header Text Color</label>
+                            <input type="color" id="headerTextColor">
+                        </div>
+                        <div class="color-input-group">
+                            <label for="statusOnBg">Status ON Background</label>
+                            <input type="color" id="statusOnBg">
+                        </div>
+                        <div class="color-input-group">
+                            <label for="statusOffBg">Status OFF Background</label>
+                            <input type="color" id="statusOffBg">
+                        </div>
+                        <div class="color-input-group">
+                            <label for="configButtonBg">Config Button Background</label>
+                            <input type="color" id="configButtonBg">
+                        </div>
+                        <div class="color-input-group">
+                            <label for="queueRowBg">Queue Row Background</label>
+                            <input type="color" id="queueRowBg">
+                        </div>
+                        <div class="color-input-group">
+                            <label for="pendingBg">Pending Status Background</label>
+                            <input type="color" id="pendingBg">
+                        </div>
+                        <div class="color-input-group">
+                            <label for="acceptedBg">Accepted Status Background</label>
+                            <input type="color" id="acceptedBg">
+                        </div>
+                        <div class="color-input-group">
+                            <label for="deniedBg">Denied Status Background</label>
+                            <input type="color" id="deniedBg">
+                        </div>
+                        <div class="color-input-group">
+                            <label for="textColor">General Text Color</label>
+                            <input type="color" id="textColor">
+                        </div>
+                        <div class="color-input-group">
+                            <label for="queueNumColor">Queue Number Color</label>
+                            <input type="color" id="queueNumColor">
+                        </div>
+                        <div class="color-input-group">
+                            <label for="requesterColor">Requester Name Color</label>
+                            <input type="color" id="requesterColor">
+                        </div>
+                        <div class="color-input-group">
+                            <label for="timeAgoColor">Time Ago Color</label>
+                            <input type="color" id="timeAgoColor">
+                        </div>
+                        <div class="color-input-group">
+                            <label for="acceptBtnBg">Accept Button Background</label>
+                            <input type="color" id="acceptBtnBg">
+                        </div>
+                        <div class="color-input-group">
+                            <label for="denyBtnBg">Deny Button Background</label>
+                            <input type="color" id="denyBtnBg">
+                        </div>
+                        <div class="color-input-group">
+                            <label for="removeBtnBg">Remove Button Background</label>
+                            <input type="color" id="removeBtnBg">
+                        </div>
+                    </div>
+                    <div class="button-group">
+                        <button type="button" class="load-default-button" onclick="loadDefaultColors()">Load Default Colors</button>
+                    </div>
+                </div>
+                <div class="button-group">
+                    <button type="button" class="save-button" onclick="saveConfig()">Save Configuration</button>
+                    <button type="button" class="reset-button" onclick="resetConfig()">Reset Configuration</button>
+                </div>
+            </div>
+
+            <div id="bot-commands" class="tab-content container">
+                <h1>Bot Command Responses</h1>
+                <div class="section-group">
+                    <p>Use <code>@{author_name}</code>, <code>{song}</code>, <code>{artist}</code>, <code>{requester}</code>, <code>{position}</code>, <code>{old_song}</code>, <code>{old_artist}</code>, <code>{new_song}</code>, <code>{new_artist}</code> placeholders.</p>
+                    <label for="sr_disabled_message">!sr disabled (non-subscribers)</label>
+                    <textarea id="sr_disabled_message"></textarea>
+
+                    <label for="sr_globally_disabled_message">!sr globally disabled</label>
+                    <textarea id="sr_globally_disabled_message"></textarea>
+                    
+                    <label for="sr_no_args_message">!sr no arguments</label>
+                    <textarea id="sr_no_args_message"></textarea>
+
+                    <label for="sr_invalid_format_message">!sr invalid format</label>
+                    <textarea id="sr_invalid_format_message"></textarea>
+
+                    <label for="sr_success_message">!sr success</label>
+                    <textarea id="sr_success_message"></textarea>
+
+                    <label for="remove_success_message">!remove success</label>
+                    <textarea id="remove_success_message"></textarea>
+
+                    <label for="remove_no_pending_message">!remove no pending</label>
+                    <textarea id="remove_no_pending_message"></textarea>
+
+                    <label for="edit_no_args_message">!edit no arguments</label>
+                    <textarea id="edit_no_args_message"></textarea>
+
+                    <label for="edit_invalid_format_message">!edit invalid format</label>
+                    <textarea id="edit_invalid_format_message"></textarea>
+
+                    <label for="edit_success_message">!edit success</label>
+                    <textarea id="edit_success_message"></textarea>
+
+                    <label for="edit_no_pending_message">!edit no pending</label>
+                    <textarea id="edit_no_pending_message"></textarea>
+
+                    <label for="current_no_songs_message">!current no songs</label>
+                    <textarea id="current_no_songs_message"></textarea>
+
+                    <label for="current_song_message">!current song playing</label>
+                    <textarea id="current_song_message"></textarea>
+
+                    <label for="pos_no_pending_message">!pos no pending</label>
+                    <textarea id="pos_no_pending_message"></textarea>
+
+                    <label for="pos_message">!pos song position</label>
+                    <textarea id="pos_message"></textarea>
+
+                    <label for="skip_success_message">!skip success</label>
+                    <textarea id="skip_success_message"></textarea>
+
+                    <label for="skip_next_song_message">!skip next song</label>
+                    <textarea id="skip_next_song_message"></textarea>
+
+                    <label for="skip_queue_empty_message">!skip queue empty</label>
+                    <textarea id="skip_queue_empty_message"></textarea>
+
+                    <label for="skip_no_pending_message">!skip no pending</label>
+                    <textarea id="skip_no_pending_message"></textarea>
+
+                    <label for="accept_bot_message">Bot message on song accept</label>
+                    <textarea id="accept_bot_message"></textarea>
+
+                    <label for="deny_bot_message">Bot message on song deny</label>
+                    <textarea id="deny_bot_message"></textarea>
+
+                    <div class="button-group">
+                        <button type="button" class="load-default-button" onclick="loadDefaultBotSpeak()">Load Default Bot Speak</button>
+                    </div>
+                </div>
+                <div class="button-group">
+                    <button type="button" class="save-button" onclick="saveConfig()">Save Configuration</button>
+                    <button type="button" class="reset-button" onclick="resetConfig()">Reset Configuration</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const statusMessageDiv = document.getElementById('statusMessage');
+        const srStatusToggle = document.getElementById('srStatusToggle');
+        const srStatusText = document.getElementById('srStatusText');
+        const fontFamilySelect = document.getElementById('fontFamilySelect');
+
+        // List of common web-safe and system fonts (kept same as before)
+        const fontList = [
+            'Arial', 'Verdana', 'Tahoma', 'Trebuchet MS', 'Georgia', 'Times New Roman',
+            'Palatino', 'Garamond', 'Bookman', 'Baskerville', 'American Typewriter',
+            'Courier New', 'Lucida Console', 'Monaco', 'Consolas', 'Inconsolata',
+            'Impact', 'Haettenschweiler', 'Franklin Gothic Medium', 'Arial Narrow',
+            'Gill Sans', 'Calibri', 'Segoe UI', 'Helvetica Neue', 'Lato', 'Open Sans',
+            'Roboto', 'Montserrat', 'Source Sans Pro', 'Ubuntu', 'Oswald', 'Raleway',
+            'Merriweather', 'Playfair Display', 'Lora', 'PT Sans', 'Noto Sans',
+            'Fira Sans', 'Inter', 'Quicksand', 'Nunito', 'Karla'
+        ];
+
+        const additionalFonts = [
+            'Bebas Neue', 'Pacifico', 'Dancing Script', 'Indie Flower', 'Satisfy',
+            'Lobster', 'Permanent Marker', 'Shadows Into Light', 'Architects Daughter',
+            'Handlee', 'Kalam', 'Caveat', 'Comfortaa', 'Righteous', 'Abril Fatface',
+            'Alfa Slab One', 'Anton', 'Exo 2', 'Orbitron', 'Press Start 2P',
+            'Space Mono', 'Special Elite', 'VT323', 'Avenir', 'Futura', 'Geneva',
+            'Optima', 'Candara', 'Corbel'
+        ];
+        
+        // Combine and filter unique values
+        const allFonts = Array.from(new Set(fontList.concat(additionalFonts))).sort();
+        // Add an empty string at the beginning for the "Select a Font" option value
+        allFonts.unshift(''); 
+        
+        // Function to populate the font dropdown
+        function populateFontDropdown() {
+            fontFamilySelect.innerHTML = ''; // Clear existing options
+            allFonts.forEach(font => {
+                const option = document.createElement('option');
+                option.value = font;
+                if (font.trim() === '') {
+                    option.textContent = 'Select a Font';
+                    option.style.fontFamily = 'sans-serif'; // Default for the placeholder
+                } else {
+                    option.textContent = font;
+                    option.style.fontFamily = `'${font}', sans-serif`; // Apply the font style
+                }
+                option.classList.add('font-option');
+                fontFamilySelect.appendChild(option);
+            });
+        }
+
+        function displayStatusMessage(message, type) {
+            statusMessageDiv.textContent = message;
+            statusMessageDiv.className = 'status-message ' + type;
+            statusMessageDiv.style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            setTimeout(() => {
+                statusMessageDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        document.querySelectorAll('.tab-button').forEach(button => {
+            button.addEventListener('click', () => {
+                const tabToActivate = button.dataset.tab;
+
+                document.querySelector('.tab-button.active')?.classList.remove('active');
+                document.querySelector('.tab-content.active')?.classList.remove('active');
+
+                button.classList.add('active');
+                document.getElementById(tabToActivate).classList.add('active');
+            });
+        });
+
+        async function fetchConfig() {
+            try {
+                const response = await fetch('/get_config');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const config = await response.json();
+                console.log("Fetched config:", config);
+
+                document.getElementById('botToken').value = config.BOT_TOKEN || '';
+                document.getElementById('channel').value = config.CHANNEL || '';
+                document.getElementById('botNick').value = config.BOT_NICK || '';
+                
+                updateSRStatusDisplay(config.SONG_REQUESTS_ENABLED);
+
+                if (config.theme) {
+                    // Set selected font family
+                    let currentFont = config.theme.font_family || '';
+                    fontFamilySelect.value = currentFont;
+
+                    // If the loaded font isn't in our populated list, add it as a temporary option
+                    // (This handles cases where the font was manually typed before the dropdown was implemented)
+                    if (currentFont && !allFonts.includes(currentFont)) {
+                        const customOptionExists = Array.from(fontFamilySelect.options).some(opt => opt.value === currentFont);
+                        if (!customOptionExists) {
+                            const customOption = document.createElement('option');
+                            customOption.value = currentFont;
+                            customOption.textContent = `${currentFont} (Custom)`;
+                            customOption.style.fontFamily = `'${currentFont}', sans-serif`;
+                            customOption.classList.add('font-option');
+                            // Add it after the "Select a Font" option
+                            fontFamilySelect.insertBefore(customOption, fontFamilySelect.children[1]); 
+                            fontFamilySelect.value = currentFont; // Select it
+                        }
+                    }
+
+                    document.getElementById('fontSize').value = config.theme.font_size || '';
+                    document.getElementById('headerBg').value = config.theme.header_bg || '#000000';
+                    document.getElementById('headerTextColor').value = config.theme.header_text_color || '#ffffff';
+                    document.getElementById('statusOnBg').value = config.theme.status_on_bg || '#00ff00';
+                    document.getElementById('statusOffBg').value = config.theme.status_off_bg || '#ff0000';
+                    document.getElementById('configButtonBg').value = config.theme.config_button_bg || '#0066eb';
+                    document.getElementById('queueRowBg').value = config.theme.queue_row_bg || '#000000';
+                    document.getElementById('pendingBg').value = config.theme.pending_bg || '#000000';
+                    document.getElementById('acceptedBg').value = config.theme.accepted_bg || '#04ff00';
+                    document.getElementById('deniedBg').value = config.theme.denied_bg || '#ff0000';
+                    document.getElementById('textColor').value = config.theme.text_color || '#ffffff';
+                    document.getElementById('queueNumColor').value = config.theme.queue_num_color || '#ffffff';
+                    document.getElementById('requesterColor').value = config.theme.requester_color || '#ffffff';
+                    document.getElementById('timeAgoColor').value = config.theme.time_ago_color || '#ffffff';
+                    document.getElementById('acceptBtnBg').value = config.theme.accept_btn_bg || '#02971b';
+                    document.getElementById('denyBtnBg').value = config.theme.deny_btn_bg || '#a30000';
+                    document.getElementById('removeBtnBg').value = config.theme.remove_btn_bg || '#7a890b';
+                }
+
+                if (config.command_responses) {
+                    for (const key in config.command_responses) {
+                        const element = document.getElementById(key);
+                        if (element) {
+                            element.value = config.command_responses[key];
+                        }
+                    }
+                }
+
+            } catch (error) {
+                console.error('Failed to load configuration:', error);
+                displayStatusMessage('Failed to load configuration. Check console for details.', 'error');
+            }
+        }
+
+        async function saveConfig() {
+            const config = {
+                BOT_TOKEN: document.getElementById('botToken').value,
+                CHANNEL: document.getElementById('channel').value,
+                BOT_NICK: document.getElementById('botNick').value,
+                theme: {
+                    font_family: fontFamilySelect.value, // Read from select
+                    font_size: document.getElementById('fontSize').value,
+                    header_bg: document.getElementById('headerBg').value,
+                    header_text_color: document.getElementById('headerTextColor').value,
+                    status_on_bg: document.getElementById('statusOnBg').value,
+                    status_off_bg: document.getElementById('statusOffBg').value,
+                    config_button_bg: document.getElementById('configButtonBg').value,
+                    queue_row_bg: document.getElementById('queueRowBg').value,
+                    pending_bg: document.getElementById('pendingBg').value,
+                    accepted_bg: document.getElementById('acceptedBg').value,
+                    denied_bg: document.getElementById('deniedBg').value,
+                    text_color: document.getElementById('textColor').value,
+                    queue_num_color: document.getElementById('queueNumColor').value,
+                    requester_color: document.getElementById('requesterColor').value,
+                    time_ago_color: document.getElementById('timeAgoColor').value,
+                    accept_btn_bg: document.getElementById('acceptBtnBg').value,
+                    deny_btn_bg: document.getElementById('denyBtnBg').value,
+                    remove_btn_bg: document.getElementById('removeBtnBg').value
+                },
+                command_responses: {}
+            };
+
+            const commandResponseKeys = [
+                'sr_disabled_message', 'sr_globally_disabled_message', 'sr_no_args_message',
+                'sr_invalid_format_message', 'sr_success_message', 'remove_success_message',
+                'remove_no_pending_message', 'edit_no_args_message', 'edit_invalid_format_message',
+                'edit_success_message', 'edit_no_pending_message', 'current_no_songs_message',
+                'current_song_message', 'pos_no_pending_message', 'pos_message',
+                'skip_success_message', 'skip_next_song_message', 'skip_queue_empty_message',
+                'skip_no_pending_message', 'accept_bot_message', 'deny_bot_message'
+            ];
+
+            commandResponseKeys.forEach(key => {
+                const element = document.getElementById(key);
+                if (element) {
+                    config.command_responses[key] = element.value;
+                }
+            });
+
+            try {
+                const response = await fetch('/save_config', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(config)
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    displayStatusMessage(data.message, 'success');
+                    fetchConfig();
+                } else {
+                    displayStatusMessage('Error saving configuration: ' + (data.message || 'Unknown error'), 'error');
+                }
+            } catch (error) {
+                console.error('Error saving configuration:', error);
+                displayStatusMessage('Error saving configuration: Failed to fetch or network issue.', 'error');
+            }
+        }
+
+        async function loadDefaultColors() {
+            try {
+                const response = await fetch('/get_default_config');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const defaultConfig = await response.json();
+
+                if (defaultConfig.theme) {
+                    let defaultFont = defaultConfig.theme.font_family || '';
+                    fontFamilySelect.value = defaultFont;
+                    // If default font isn't in current list, add it temporarily
+                    if (defaultFont && !allFonts.includes(defaultFont)) {
+                        const customOptionExists = Array.from(fontFamilySelect.options).some(opt => opt.value === defaultFont);
+                        if (!customOptionExists) {
+                            const customOption = document.createElement('option');
+                            customOption.value = defaultFont;
+                            customOption.textContent = `${defaultFont} (Default)`;
+                            customOption.style.fontFamily = `'${defaultFont}', sans-serif`;
+                            customOption.classList.add('font-option');
+                            fontFamilySelect.insertBefore(customOption, fontFamilySelect.children[1]); 
+                            fontFamilySelect.value = defaultFont;
+                        }
+                    }
+
+                    document.getElementById('fontSize').value = defaultConfig.theme.font_size || '';
+                    document.getElementById('headerBg').value = defaultConfig.theme.header_bg || '#000000';
+                    document.getElementById('headerTextColor').value = defaultConfig.theme.header_text_color || '#ffffff';
+                    document.getElementById('statusOnBg').value = defaultConfig.theme.status_on_bg || '#00ff00';
+                    document.getElementById('statusOffBg').value = defaultConfig.theme.status_off_bg || '#ff0000';
+                    document.getElementById('configButtonBg').value = defaultConfig.theme.config_button_bg || '#0066eb';
+                    document.getElementById('queueRowBg').value = defaultConfig.theme.queue_row_bg || '#000000';
+                    document.getElementById('pendingBg').value = defaultConfig.theme.pending_bg || '#000000';
+                    document.getElementById('acceptedBg').value = defaultConfig.theme.accepted_bg || '#04ff00';
+                    document.getElementById('deniedBg').value = defaultConfig.theme.denied_bg || '#ff0000';
+                    document.getElementById('textColor').value = defaultConfig.theme.text_color || '#ffffff';
+                    document.getElementById('queueNumColor').value = defaultConfig.theme.queue_num_color || '#ffffff';
+                    document.getElementById('requesterColor').value = defaultConfig.theme.requester_color || '#ffffff';
+                    document.getElementById('timeAgoColor').value = defaultConfig.theme.time_ago_color || '#ffffff';
+                    document.getElementById('acceptBtnBg').value = defaultConfig.theme.accept_btn_bg || '#02971b';
+                    document.getElementById('denyBtnBg').value = defaultConfig.theme.deny_btn_bg || '#a30000';
+                    document.getElementById('removeBtnBg').value = defaultConfig.theme.remove_btn_bg || '#7a890b';
+                    displayStatusMessage('Default colors loaded successfully!', 'info');
+                } else {
+                    displayStatusMessage('Failed to load default colors: Theme data missing in default config.', 'error');
+                }
+            } catch (error) {
+                console.error('Failed to load default colors:', error);
+                displayStatusMessage('Failed to load default colors. Check console for details.', 'error');
+            }
+        }
+
+        async function loadDefaultBotSpeak() {
+            try {
+                const response = await fetch('/get_default_config');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const defaultConfig = await response.json();
+
+                if (defaultConfig.command_responses) {
+                    for (const key in defaultConfig.command_responses) {
+                        const element = document.getElementById(key);
+                        if (element) {
+                            element.value = defaultConfig.command_responses[key];
+                        }
+                    }
+                    displayStatusMessage('Default bot speak messages loaded successfully!', 'info');
+                } else {
+                    displayStatusMessage('Failed to load default bot speak: Command responses data missing in default config.', 'error');
+                }
+            } catch (error) {
+                console.error('Failed to load default bot speak:', error);
+                displayStatusMessage('Failed to load default bot speak. Check console for details.', 'error');
+            }
+        }
+
+        function resetConfig() {
+            if (confirm('Are you sure you want to reset all configurations to their last saved state?')) {
+                fetchConfig();
+                displayStatusMessage('Configuration reset to last saved state.', 'info');
+            }
+        }
+
+        async function toggleSongRequests() {
+            const currentStatusText = srStatusText.textContent.trim();
+            const newStatus = (currentStatusText === 'ON') ? 'off' : 'on';
+
+            try {
+                const response = await fetch(`/toggle_requests?status=${newStatus}`);
+                const data = await response.json();
+                if (response.ok && data.status === 'success') {
+                    displayStatusMessage(data.message, 'success');
+                    updateSRStatusDisplay(data.enabled);
+                } else {
+                    displayStatusMessage('Failed to toggle song requests: ' + (data.message || 'Unknown error'), 'error');
+                }
+            }
+             catch (error) {
+                console.error('Error toggling song requests:', error);
+                displayStatusMessage('An error occurred while toggling song requests: Failed to fetch or network issue.', 'error');
+            }
+        }
+
+        function updateSRStatusDisplay(isEnabled) {
+            if (isEnabled) {
+                srStatusText.textContent = 'ON';
+                srStatusToggle.classList.remove('off');
+                srStatusToggle.classList.add('on');
+            } else {
+                srStatusText.textContent = 'OFF';
+                srStatusToggle.classList.remove('on');
+                srStatusToggle.classList.add('off');
+            }
+        }
+
+        srStatusToggle.addEventListener('click', toggleSongRequests);
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            populateFontDropdown(); // Populate dropdown on load
+            fetchConfig(); // Then fetch config to set values
+        });
+    </script>
+</body>
+</html>
